@@ -113,7 +113,19 @@ trait Stream[+A] {
 
   def startsWith[A](s: Stream[A]): Boolean =
     zipAll[A](s).takeWhile(case (_, opt2) => !opt2.isEmpty).forAll {case (x1, x2) => x1 == x2}
-    //zipWithViaUnfold[A, Boolean](s)(_ == _).forAll(_)
+  //zipWithViaUnfold[A, Boolean](s)(_ == _).forAll(_)
+
+  def tails: Stream[Stream[A]] =
+    Stream.unfold[Stream[A], Stream[A]](this) { s =>
+      case Cons(_, t) => Some((s, t()))
+      case Empty => None
+    } append Stream(empty[A])
+
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
+    foldRight(z){(a: A, b: B) =>
+
+    }
+
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
